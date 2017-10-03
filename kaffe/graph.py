@@ -147,7 +147,7 @@ class Graph(object):
                 activation_count = '--'
                 activation_kB = '--'
                 missing_activations = True
-            s.append('{:<20} {:<30} {:>20} {:>20} {:>20} {:>20} {:>20.2f}'.format(node.kind, node.name, data_shape, out_shape, weight_count, activation_count, activation_kB))
+            s.append('{:<20} {:<30} {:>20} {:>20} {:>20} {:>20} {:>20.2f}'.format(node.kind, node.name, str(data_shape), str(out_shape), weight_count, activation_count, activation_kB))
         s.append('Total weight count: %d' % total_weight_count)
         s.append('Total weight MB: %.2f' % (total_weight_count * 4 / float(2**20))) # assume four bytes per activation
         s.append('Total activation count: %d %s' % (total_activation_count, '(incomplete)' if missing_activations else ''))
@@ -173,7 +173,8 @@ class GraphBuilder(object):
         '''Load the layer definitions from the prototxt.'''
         self.params = get_caffe_resolver().NetParameter()
         with open(self.def_path, 'rb') as def_file:
-            text_format.Merge(def_file.read(), self.params)
+            def_bytes = def_file.read()
+            text_format.Merge(def_bytes.decode('utf-8'), self.params)
 
     def filter_layers(self, layers):
         '''Filter out layers based on the current phase.'''
