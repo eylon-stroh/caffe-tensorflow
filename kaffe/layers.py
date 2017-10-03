@@ -1,6 +1,6 @@
+from __future__ import absolute_import
 import re
 import numbers
-from collections import namedtuple
 
 from .shapes import *
 

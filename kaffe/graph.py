@@ -1,3 +1,6 @@
+from __future__ import absolute_import, division
+from functools import reduce
+
 from google.protobuf import text_format
 
 from .caffe import get_caffe_resolver
@@ -128,7 +131,7 @@ class Graph(object):
             # In case of convolutions, this corresponds to the weights.
             if node.data:
                 data_shape = node.data[0].shape
-                weight_count = reduce(addition, map(lambda weights: reduce(multiplication, weights.shape), node.data))
+                weight_count = reduce(addition, [reduce(multiplication, weights.shape) for weights in node.data])
                 total_weight_count += weight_count
             else:
                 data_shape = '--'
@@ -216,10 +219,10 @@ class GraphBuilder(object):
         '''
         nodes = [Node(name, NodeKind.Data) for name in self.params.input]
         if len(nodes):
-            input_dim = map(int, self.params.input_dim)
+            input_dim = [int(d) for d in self.params.input_dim]
             if not input_dim:
                 if len(self.params.input_shape) > 0:
-                    input_dim = map(int, self.params.input_shape[0].dim)
+                    input_dim = [int(d) for d in self.params.input_shape[0].dim]
                 else:
                     raise KaffeError('Dimensions for input not specified.')
             for node in nodes:

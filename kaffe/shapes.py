@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division
 import math
 from collections import namedtuple
 
@@ -8,8 +9,8 @@ TensorShape = namedtuple('TensorShape', ['batch_size', 'channels', 'height', 'wi
 
 def get_filter_output_shape_fn(round_func, dilation = 1):
     def get_filter_output_shape(i_h, i_w, params):
-        effective_pad_h = params.pad_h / dilation
-        effective_pad_w = params.pad_w / dilation
+        effective_pad_h = params.pad_h // dilation
+        effective_pad_w = params.pad_w // dilation
         o_h = (i_h + 2 * effective_pad_h - params.kernel_h) / float(params.stride_h) + 1
         o_w = (i_w + 2 * effective_pad_w - params.kernel_w) / float(params.stride_w) + 1
         return (int(round_func(o_h)), int(round_func(o_w)))
@@ -53,7 +54,7 @@ def shape_data(node):
         return val
     try:
         # New-style input specification
-        return map(int, node.parameters.shape[0].dim)
+        return [int(d) for d in node.parameters.shape[0].dim]
     except:
         # We most likely have a data layer on our hands. The problem is,
         # Caffe infers the dimensions of the data from the source (eg: LMDB).

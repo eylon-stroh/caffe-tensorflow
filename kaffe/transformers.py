@@ -3,7 +3,7 @@ A collection of graph transforms.
 
 A transformer is a callable that accepts a graph and returns a transformed version.
 '''
-
+from __future__ import absolute_import
 import numpy as np
 
 from .caffe import get_caffe_resolver, has_pycaffe
@@ -37,8 +37,7 @@ class DataInjector(object):
     def load_using_caffe(self):
         caffe = get_caffe_resolver().caffe
         net = caffe.Net(self.def_path, self.data_path, caffe.TEST)
-        data = lambda blob: blob.data
-        self.params = [(k, map(data, v)) for k, v in net.params.items()]
+        self.params = [(k, [blob.data for blob in v]) for k, v in net.params.items()]
 
     def load_using_pb(self):
         data = get_caffe_resolver().NetParameter()

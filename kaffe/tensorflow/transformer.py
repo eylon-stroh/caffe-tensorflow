@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+from past.builtins import basestring 
 import numpy as np
 
 from ..errors import KaffeError, print_stderr
@@ -53,7 +55,7 @@ class TensorFlowNode(object):
     def emit(self):
         '''Emits the Python source for this node.'''
         # Format positional arguments
-        args = map(self.format, self.args)
+        args = [self.format(arg) for arg in self.args]
         # Format any keyword arguments
         if self.kwargs:
             args += [self.pair(k, v) for k, v in self.kwargs]
@@ -158,7 +160,7 @@ class TensorFlowMapper(NodeMapper):
         # just scales by alpha (as does Krizhevsky's paper).
         # We'll account for that here.
         alpha = params.alpha / float(params.local_size)
-        return TensorFlowNode('lrn', int(params.local_size / 2), alpha, params.beta)
+        return TensorFlowNode('lrn', params.local_size // 2, alpha, params.beta)
 
     def map_concat(self, node):
         axis = (2, 3, 1, 0)[node.parameters.axis]

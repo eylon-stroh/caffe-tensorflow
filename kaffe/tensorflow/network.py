@@ -1,4 +1,5 @@
-import math
+from __future__ import absolute_import
+from past.builtins import basestring 
 import numpy as np
 import tensorflow as tf
 
@@ -130,7 +131,7 @@ class Network(object):
         else:
             convolve = lambda i, k: tf.nn.conv2d(i, k, [1, s_h, s_w, 1], padding=padding)
         with tf.variable_scope(name) as scope:
-            kernel = self.make_var('weights', shape=[k_h, k_w, c_i / group, c_o])
+            kernel = self.make_var('weights', shape=[k_h, k_w, c_i // group, c_o])
             if group == 1:
                 # This is the common-case. Convolve the input without any further complications.
                 output = convolve(input, kernel)
@@ -190,7 +191,7 @@ class Network(object):
         
         deconv = lambda i, k: tf.nn.conv2d_transpose(i, k, output_shape=out_shape, strides=stride_shape, padding=padding)
         with tf.variable_scope(name) as scope:
-            kernel = self.make_var('weights', shape=[k_h, k_w, c_i / group, c_o])
+            kernel = self.make_var('weights', shape=[k_h, k_w, c_i // group, c_o])
             if group == 1:
                 # This is the common-case. Convolve the input without any further complications.
                 output = deconv(input, kernel)
@@ -273,12 +274,12 @@ class Network(object):
 
     @layer
     def softmax(self, input, name):
-        input_shape = map(lambda v: v.value, input.get_shape())
+        input_shape = input.get_shape()
         if len(input_shape) > 2:
             # For certain models (like NiN), the singleton spatial dimensions
             # need to be explicitly squeezed, since they're not broadcast-able
             # in TensorFlow's NHWC ordering (unlike Caffe's NCHW).
-            if input_shape[1] == 1 and input_shape[2] == 1:
+            if input_shape[1].value == 1 and input_shape[2].value == 1:
                 input = tf.squeeze(input, squeeze_dims=[1, 2])
             
         return tf.nn.softmax(input, name=name)
