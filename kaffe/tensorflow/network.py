@@ -1,5 +1,6 @@
 from __future__ import absolute_import
-from past.builtins import basestring 
+from past.builtins import basestring
+
 import numpy as np
 import tensorflow as tf
 
@@ -62,7 +63,7 @@ class Network(object):
         data_dict = np.load(data_path).item()
         for op_name in data_dict:
             with tf.variable_scope(op_name, reuse=True):
-                for param_name, data in data_dict[op_name].iteritems():
+                for param_name, data in data_dict[op_name].items():
                     try:
                         var = tf.get_variable(param_name)
                         session.run(var.assign(data))
