@@ -4,7 +4,6 @@ from past.builtins import basestring
 import numpy as np
 import tensorflow as tf
 
-BATCH_SIZE = 4 # Only used for deconvolution
 DEFAULT_PADDING = 'SAME'
 
 
@@ -35,7 +34,7 @@ def layer(op):
 
 class Network(object):
 
-    def __init__(self, inputs, trainable=True):
+    def __init__(self, inputs, trainable=True, deconv_batch_size=1):
         # The input nodes for this network
         self.inputs = inputs
         # The current list of terminal nodes
@@ -44,6 +43,8 @@ class Network(object):
         self.layers = dict(inputs)
         # If true, the resulting variables are set as trainable
         self.trainable = trainable
+        # TensorFlow deconvolution requires batch size to be specified; this value is not used for other layers
+        self.deconv_batch_size = deconv_batch_size
         # Switch variable for dropout
         self.use_dropout = tf.placeholder_with_default(tf.constant(1.0),
                                                        shape=[],
@@ -177,7 +178,7 @@ class Network(object):
         kernel_shape = [c_i, k_h, k_w, c_o]
         input_shape = input.get_shape()
         # Code deep in conv2d_transpose cannot convert a list with None to a Tensor, so we need to specify batch size
-        out_shape = [BATCH_SIZE]
+        out_shape = [self.deconv_batch_size]
         for i in range(1,3):
             kernel_i= kernel_shape[i]
             stride_i = stride_shape[i]
